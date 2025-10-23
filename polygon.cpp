@@ -1,45 +1,132 @@
-#include <bits/stdc++.h>
+#include<bits/stdc++.h>
 using namespace std;
 
+#define ll long long
+#define fi first
+#define se second
+#define Task "polygon"
+
+typedef pair<int,int>ii;
+typedef pair<ii,int>iii;
+
+const int MOD = 1e9+7;
+const int INF = 1e9+7;
+const int Maxn = 2e5+7;
+const int di[] = {0, 0, -1, 1};
+const int dj[] = {-1, 1, 0, 0};
+
 struct Point {
-    double x, y;
+    long double x, y;
+    Point(int x = 0, int y = 0) : x(x), y(y) {}
+    bool operator==(const Point &o) {
+        return x == o.x && y == o.y;
+    }
+    bool operator!=(const Point &o) {
+        return !(*this == o);
+    }
+    Point operator-(const Point &o) {
+        return Point(x - o.x, y - o.y);
+    }
+    long double length() const {
+        return sqrt(1LL * x * x + 1LL * y * y);
+    }
 };
 
-// Kiểm tra điểm P có nằm trên đoạn AB không
-bool onSegment(Point A, Point B, Point P) {
-    double cross = (B.x - A.x) * (P.y - A.y) - (B.y - A.y) * (P.x - A.x);
-    if (fabs(cross) > 1e-9) return false; // Không thẳng hàng
-    if (min(A.x, B.x) - 1e-9 <= P.x && P.x <= max(A.x, B.x) + 1e-9 &&
-        min(A.y, B.y) - 1e-9 <= P.y && P.y <= max(A.y, B.y) + 1e-9)
-        return true;
-    return false;
+vector<Point>p;
+Point a[Maxn],b[Maxn];
+
+long double dot(const Point &A, const Point &B) {
+    return A.x * B.x + A.y * B.y;
 }
 
-// Hàm kiểm tra P có nằm trong đa giác không
-bool inPolygon(vector<Point> poly, Point P) {
-    int n = poly.size();
-    bool inside = false;
-    for (int i = 0, j = n - 1; i < n; j = i++) {
-        Point A = poly[i], B = poly[j];
+long double calcAngle(const Point &A, const Point &B) {
+    return acos(dot(A, B) / A.length() / B.length());
+}
 
-        // Nếu nằm trên cạnh
-        if (onSegment(A, B, P)) return true;
+long double cross(const Point &A, const Point &B, const Point &C) {
+    return (B.x - A.x) * (C.y - A.y) - (C.x - A.x) * (B.y - A.y);
+}
 
-        // Xét giao điểm với tia song song Ox
-        bool intersect = ((A.y > P.y) != (B.y > P.y)) &&
-                         (P.x < (B.x - A.x) * (P.y - A.y) / (B.y - A.y) + A.x);
-        if (intersect)
-            inside = !inside;
+int ccw(const Point &A, const Point &B, const Point &C) {
+    long double S = cross(A, B, C);
+    if (S < 0) return -1;
+    if (S == 0) return 0;
+    return 1;
+}
+
+vector<Point> convexHull(vector<Point> p, int n) {
+    for (int i = 1; i < n; ++i) {
+        if (p[0].y > p[i].y || (p[0].y == p[i].y && p[0].x > p[i].x)) {
+            swap(p[0], p[i]);
+        }
     }
-    return inside;
+    sort(p.begin() + 1, p.end(), [&p](const Point &A, const Point &B) {
+        int c = ccw(p[0], A, B);
+        if (c > 0) return true;
+        if (c < 0) return false;
+        return A.x < B.x || (A.x == B.x && A.y < B.y);
+    });
+    vector<Point> hull;
+    hull.push_back(p[0]);
+    for (int i = 1; i < n; ++i) {
+        while (hull.size() >= 2 && ccw(hull[hull.size() - 2], hull.back(), p[i]) < 0) {
+            hull.pop_back();
+        }
+        hull.push_back(p[i]);
+    }
+    return hull;
 }
 
-int main() {
-    vector<Point> poly = {{0, 0}, {10, 0}, {10, 10}, {0, 10}};
-    Point P = {5, 5};
-    
-    if (inPolygon(poly, P))
-        cout << "YES\n";
-    else
-        cout << "NO\n";
+bool cmp(Point i,Point j){
+    if (i.x==j.x) return i.y<j.y;
+    return i.x<j.x;
+}
+
+void run_case(){
+    int n,m;
+    cin>>n;
+    p.clear();
+    for(int i=1;i<=n;i++) cin>>a[i].x>>a[i].y;
+    cin>>m;
+    for(int i=1;i<=m;i++) cin>>b[i].x>>b[i].y;
+    for(int i=1;i<=n;i++) p.push_back(a[i]);
+    for(int i=1;i<=m;i++) p.push_back(b[i]);
+    int k=p.size();
+    vector<Point>ans=convexHull(p,k);
+    sort(ans.begin(),ans.end(),cmp);
+    for(int i=1;i<=m;i++){
+        int l=0,r=ans.size()-1,pos=-1;
+        while(l<=r){
+            int g=(l+r)/2;
+            if (ans[g].x==b[i].x){
+                if (ans[g].y==b[i].y){
+                    pos=g;
+                    break;
+                }
+                if (ans[g].y>b[i].y) r=g-1;
+                else l=g+1;
+            }
+            else if (ans[g].x>b[i].x) r=g-1;
+            else l=g+1;
+        }
+        if (pos!=-1){
+            cout<<"NO"<<'\n';
+            return;
+        }
+    }
+    cout<<"YES"<<'\n';
+}
+
+int main(){
+    ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0);
+    if (fopen(Task ".inp", "r"))
+    {
+        freopen(Task ".inp", "r", stdin);
+        freopen(Task ".out", "w", stdout);
+    }
+    int t = 1;
+    cin >> t;
+    while(t--){
+        run_case();
+    }
 }
