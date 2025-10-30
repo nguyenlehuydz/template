@@ -1,0 +1,88 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define ll long long
+#define fi first
+#define se second
+#define Task "test"
+
+typedef pair<int,int>ii;
+
+const int MOD = 1e9+7;
+const ll INF = 1e18+7;
+const int Maxn = 1e5+7;
+const int di[] = {0, 0, -1, 1};
+const int dj[] = {-1, 1, 0, 0};
+
+struct Point{
+    ll x,y;
+};
+Point a[Maxn],b[Maxn];
+
+bool cmpx(Point i,Point j){
+    return i.x<j.x;
+}
+
+bool cmpy(Point i,Point j){
+    return i.y<j.y;
+}
+
+ll sqr(ll x){
+    return x*x;
+}
+
+ll dist(Point i,Point j){
+    ll dx=abs(i.x-j.x),dy=abs(i.y-j.y);
+    return dx*dx+dy*dy;
+}
+
+ll calc(int l,int r){
+    if (r-l<=2){
+        ll ans=INF;
+        for(int i=l;i<r;i++){
+            for(int j=i+1;j<=r;j++){
+                ans=min(ans,dist(a[i],a[j]));
+            }
+        }
+        return ans;
+    }
+    int m=(l+r)/2;
+    ll d=min(calc(l,m),calc(m+1,r));
+    int s=0;
+    for(int i=l;i<=r;i++){
+        ll opt=abs(a[i].x-a[m].x);
+        if (opt*opt<d){
+            b[++s]=a[i];
+        }
+    }
+    sort(b+1,b+s+1,cmpy);
+    ll ans=d;
+    for(int i=1;i<s;i++){
+        for(int j=i+1;j<=s && sqr(b[j].y-b[i].y)<d;j++){
+            ans=min(ans,dist(b[i],b[j]));
+        }
+    }
+    return ans;
+}
+
+void run_case(){
+    int n;
+    cin>>n;
+    for(int i=1;i<=n;i++) cin>>a[i].x>>a[i].y;
+    sort(a+1,a+n+1,cmpx);
+    ll ans=calc(1,n);
+    cout<<setprecision(6)<<fixed<<sqrt(ans);
+}
+int main(){
+    ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0);
+    if (fopen(Task ".inp", "r"))
+    {
+        freopen(Task ".inp", "r", stdin);
+        freopen(Task ".out", "w", stdout);
+    }
+    int t = 1;
+    //cin >> t;
+    while(t--){
+        run_case();
+    }
+}
