@@ -1,0 +1,43 @@
+string sum(string a,string b){
+    while(a.size()<b.size()) a='0'+a;
+    while(b.size()<a.size()) b='0'+b;
+    int m=a.size();
+    int tmp=0;
+    string ans="";
+    for(int i=m-1;i>=0;i--){
+        int res=a[i]-'0'+b[i]-'0'+tmp;
+        ans=char((res%10)+'0')+ans;
+        tmp=res/10;
+    }
+    if (tmp>0) ans=char(tmp+'0')+ans;
+    return ans;
+}
+
+string in_mul(string a,int k){
+    int m=a.size();
+    int tmp=0;
+    string ans="";
+    for(int i=m-1;i>=0;i--){
+        int num=a[i]-'0';
+        int res=num*k+tmp;
+        ans=char((res%10)+'0')+ans;
+        tmp=res/10;
+    }
+    if (tmp>0) ans=char(tmp+'0')+ans;
+    return ans;
+}
+
+string mul(string a,string b){
+    int m=a.size(),k=b.size();
+    vector<string>res;
+    int l=0;
+    for(int j=k-1;j>=0;j--){
+        string tmp=in_mul(a,b[j]-'0');
+        for(int i=1;i<=l;i++) tmp+='0';
+        res.push_back(tmp);
+        l++;
+    }
+    string ans=res[0];
+    for(int i=1;i<res.size();i++) ans=sum(ans,res[i]);
+    return ans;
+}

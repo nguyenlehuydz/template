@@ -1,0 +1,14 @@
+queue<int>q;
+///
+void bfs(int x){
+	f[x]=1; q.push(x);
+	while(!q.empty()){
+		int k=q.front();
+		q.pop(k);
+		for(auto d:a[k]){
+			if (f[d]==0){
+				f[d]=1;q.push(d);
+			}
+		}
+	}
+}

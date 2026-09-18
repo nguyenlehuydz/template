@@ -1,0 +1,19 @@
+void bfs01(int s){
+    deque<int>dq;
+    for(int i=1;i<=n;i++) dp[i]=INF,vis[i]=0;
+    dp[s]=0;
+    while(!dq.empty()){
+        int u=dq.front();
+        dq.pop_front();
+        if (vis[u]) continue;
+        vis[u]=1;
+        for(ii x:g[u]){
+            int v=x.fi,w=x.se;
+            if (dp[v]>dp[u]+w && !vis[v]){
+                dp[v]=dp[u]+w;
+                if (w==1) dq.push_back(v);
+                else dq.push_front(v);
+            }
+        }
+    }
+}
